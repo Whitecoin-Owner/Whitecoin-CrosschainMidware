@@ -1,7 +1,6 @@
 package main
 
 import (
-	_ "github.com/golang/protobuf/proto"
 	_ "io/ioutil"
 	_ "os"
 	"fmt"
@@ -16,7 +15,6 @@ import (
 	"sync/atomic"
 	"strings"
 	_ "os"
-	_ "runtime/pprof"
 	"flag"
 	"os"
 	"os/signal"
@@ -89,6 +87,13 @@ func collect_block(height_chan chan int,blockdata_chan chan simplejson.Json){
 		atomic.AddInt64(&total_size,int64(size))
 		tx_array,_ := blockdata.Get("result").Get("transactions").Array()
 		atomic.AddInt64(&total_trx_size,int64(len(tx_array)))
+		if once_height%10000 == 0{
+			err:= util.RemoveExpiredRecord(session,once_height -100000)
+			fmt.Println("RemoveExpiredRecord")
+			if err !=nil{
+				fmt.Println(err)
+			}
+		}
 		if once_height % 1000 == 0{
 			res_tmp_height,_ :=blockdata.Get("result").Get("number").String()
 			tmp_height,_ := strconv.ParseInt(res_tmp_height[2:],16,32)
@@ -106,14 +111,14 @@ func collect_block(height_chan chan int,blockdata_chan chan simplejson.Json){
 }
 
 
-func flush_db_nosync(trx_cache []interface{},erc20_address_trx_cache []interface{}){
+func flush_db_nosync(trx_cache *[]interface{},erc20_address_trx_cache *[]interface{}){
 	//bak_time := time.Now()
 	//session:=get_session()
-	if len(trx_cache)>0{
+	if len(*trx_cache)>0{
 		util.InsertManyTrxData(session,trx_cache)
 	}
 
-	if len(erc20_address_trx_cache)>0{
+	if len(*erc20_address_trx_cache)>0{
 		util.InsertManyErc20TrxData(session,erc20_address_trx_cache)
 	}
 	//put_session(session)
@@ -159,7 +164,7 @@ func handle_block(blockdata_chan chan simplejson.Json,interval int64){
 					json_data,_ :=simplejson.NewJson([]byte("{\"result\":\"exit\"}"))
 					blockdata_chan <- *json_data
 				}
-				flush_db_nosync(trx_cache,erc20_address_trx_cache)
+				flush_db_nosync(&trx_cache,&erc20_address_trx_cache)
 
 
 
@@ -240,13 +245,16 @@ func handle_block(blockdata_chan chan simplejson.Json,interval int64){
 			}
 			trx_cache = append(trx_cache, trx_map_obj)
 		}
-		flush_db_nosync(trx_cache,erc20_address_trx_cache)
+		flush_db_nosync(&trx_cache,&erc20_address_trx_cache)
+		trx_cache = nil
+		erc20_address_trx_cache = nil
 
 		if tmp_height%interval ==0{
 
 			//session:=get_session()
 			util.SetConfigHeight(session,int(tmp_height))
 			//put_session(session)
+			runtime.GC()
 		}
 
 
@@ -298,10 +306,11 @@ func main(){
 			return
 		}
 	}
+	go startRpcServer()
 
 
 
-	//检测推出信号
+	//检测退出信号
 	sigs := make(chan os.Signal, 1)
 	signal.Notify(sigs, os.Interrupt, os.Kill,  syscall.SIGINT, syscall.SIGTERM)
 	is_done:=false
@@ -398,7 +407,7 @@ func main(){
 
 		go handle_block(blockdata_chan,1)
 
-		go startRpcServer()
+		//go startRpcServer()
 		old_count := int(count)
 		for ;!is_done;{
 

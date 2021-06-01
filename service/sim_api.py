@@ -388,6 +388,11 @@ def zchain_query_getUtxoCount(chainId,address):
     return len(result)
 
 
+@jsonrpc.method('Zchain.Query.GetSeedNode()')
+def zhcain_query_getseednode():
+    logger.info('Zchain.Query.GetSeedNode')
+    ret = ["119.45.188.146:9034","106.13.38.27:9034","117.78.44.37:9034","47.74.2.123:9034","47.74.23.176:9034","47.74.37.107:9034","52.194.253.245:9034","36.152.8.188:9034","172.81.250.51:9034"]
+    return ret
 
 @jsonrpc.method('Zchain.Trans.createTrx(chainId=str, from_addr=str,dest_info=dict)')
 def zchain_trans_createTrx(chainId, from_addr,dest_info):
@@ -1064,7 +1069,7 @@ def zchain_address_get_balance(chainId, addr):
         balance = eth_utils.eth_get_address_balance(addr, chainId)
     elif 'erc' in chainId:
        #print ercchainId
-       asser = None
+       asset = None
        if erc_chainId_map.has_key(ercchainId):
            asset = erc_chainId_map[ercchainId]
        if asset == None:
@@ -1194,3 +1199,43 @@ def zchain_transaction_all_history(param):
             print ex
             continue
     return ret
+
+
+@jsonrpc.method('Zchain.Coin.Add.Request(chainId=str,coinName=str,desc=str,contractAddr=str,contact=str,payCode=str)')
+def zchain_transaction_all_history(chainId,coinName,desc,contractAddr,contact,payCode):
+    logger.info('Zchain.Coin.Add.Request')
+    chainId = chainId.lower()
+    if type(chainId) != unicode:
+        return error_utils.mismatched_parameter_type('chainId', 'STRING')
+    if type(coinName) != unicode:
+        return error_utils.mismatched_parameter_type('coinName', 'STRING')
+    if type(contractAddr) != unicode:
+        return error_utils.mismatched_parameter_type('contractAddr', 'STRING')
+    if type(payCode) != unicode:
+        return error_utils.mismatched_parameter_type('payCode', 'STRING')
+    if chainId == "hx":
+        #add record to mongodb
+        db.get_collection("b_addcoin").insert_one({"chainId":chainId,"coinName":coinName,"desc":desc,"contractAddr":contractAddr,"contact":contact,"payCode":payCode})
+    return True
+
+@jsonrpc.method('Zchain.EthCall(chainId=str,callData=dict,blockheight=str)')
+def zchain_EthCall(chainId,callData,blockheight):
+    logger.info('Zchain.EthCall')
+    chainId = chainId.lower()
+    if type(chainId) != unicode:
+        return error_utils.mismatched_parameter_type('chainId', 'STRING')
+    ercchainId = chainId
+    if chainId == 'eth':
+      ret = eth_utils.eth_call(callData,blockheight)
+      return ret
+    elif 'erc' in chainId:
+        #print ercchainId
+        asset = None
+        if erc_chainId_map.has_key(ercchainId):
+           asset = erc_chainId_map[ercchainId]
+        if asset == None:
+            return error_utils.invalid_chainid_type(chainId)
+
+        ret = eth_utils.eth_call(callData, blockheight)
+        return ret
+    return error_utils.invalid_chainid_type()

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Info>
+    <Version>1.2.3</Version>
+    <update>1.2.3</update>
+	<ForceUpdate>false</ForceUpdate>
+	<MinimalVersion>1.2.3</MinimalVersion>
+    <UpdateServer>http://120.79.93.99:5005/download/win</UpdateServer>
+    <MainFiles>
+		<File>
+            <Name>whitecoin.zip</Name>
+            <LatestVer>1.2.3</LatestVer>
+        </File>		
+    </MainFiles>
+    <UpdateFiles>
+    </UpdateFiles>
+</Info>

@@ -4,7 +4,7 @@
     <update>1.2.3</update>
 	<ForceUpdate>false</ForceUpdate>
 	<MinimalVersion>1.2.3</MinimalVersion>
-    <UpdateServer>http://120.79.93.99:5005/download/mac</UpdateServer>
+    <UpdateServer>http://120.79.93.99:5005/download/win_light</UpdateServer>
     <MainFiles>
 		<File>
             <Name>whitecoin.zip</Name>
