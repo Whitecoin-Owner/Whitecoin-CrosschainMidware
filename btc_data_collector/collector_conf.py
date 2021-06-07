@@ -48,6 +48,16 @@ class LTCCollectorConfig(CollectorConfig):
     SYNC_BLOCK_NUM = "ltcsyncblocknum"
     SAFE_BLOCK_FIELD = "ltcsafeblock"
     MULTISIG_VERSION = 196
+
+class DOGECollectorConfig(CollectorConfig):
+    ASSET_SYMBOL = "DOGE"
+    RPC_HOST = 'doge_wallet'
+    RPC_PORT = 60020
+    SYNC_STATE_FIELD = "dogesyncstate"
+    SYNC_BLOCK_NUM = "dogesyncblocknum"
+    SAFE_BLOCK_FIELD = "dogesafeblock"
+    MULTISIG_VERSION = 22
+
 class UBCollectorConfig(CollectorConfig):
     ASSET_SYMBOL = "UB"
     RPC_HOST = 'ub_wallet'
