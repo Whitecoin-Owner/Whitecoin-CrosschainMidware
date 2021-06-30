@@ -59,7 +59,7 @@ class DevelopmentConfig(Config):
     DOGE_FEE=4
     DOGE_PER_FEE=1
     DOGE_COLLECT_HOST = 'localhost'
-    DOGE_COLLECT_PORT = 5455
+    DOGE_COLLECT_PORT = 5454
     USDT_HOST="usdt_wallet"
     USDT_PORT = 60013
     USDT_COLLECT_HOST = 'localhost'

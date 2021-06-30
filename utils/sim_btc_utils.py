@@ -168,7 +168,7 @@ class sim_btc_utils:
 
         txout = sorted(txout, key=lambda d: float(d["amount"]), reverse=True)
         #{"amount":tx["value"],"txid":tx["txid"],"vout":tx["vout"],"scriptPubKey":tx["scriptPubKey"]}
-        all_need_amount = round(amount+fee,8)
+        all_need_amount = round(amount+fee, 8)
         bak_index = -1
         use_idx = []
         if self.name.upper() != "DOGE":
@@ -186,7 +186,7 @@ class sim_btc_utils:
         bak_sum = 0
         if bak_index == -1:
             for i in range(len(txout)):
-                if sum >= round(amount + fee, 8):
+                if sum >= round(amount+fee, 8):
                     break
                 if self.name.upper() == "DOGE" and i == 0:
                     bak_sum = round(float(txout[i].get("amount")), 8)
@@ -194,7 +194,8 @@ class sim_btc_utils:
                     sum = round(sum + float(txout[i].get("amount")), 8)
                 vin_need.append(txout[i])
                 use_idx.append(i)
-        sum = round(sum + bak_sum)
+
+        sum = round(sum+bak_sum, 8)
         if len(txout)>8 and len(vin_need)<5:
             for i in range(5 - len(vin_need)):
                 cur_idx = len(txout)-i-1
@@ -203,8 +204,9 @@ class sim_btc_utils:
                     vin_need.append(txout[cur_idx])
                     use_idx.append(cur_idx)
 
-        if sum < round(amount+fee,8):
+        if sum < round(amount+fee, 8):
             return ""
+
         vins = []
         script = []
         vins_map = {}
